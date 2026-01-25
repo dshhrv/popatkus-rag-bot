@@ -9,19 +9,21 @@ from docx.text.paragraph import Paragraph
 from razdel import sentenize
 
 DOCX_PATH_RU = "popatkus_ru_ready.docx"
-OUT_PATH_RU = "popatkus_ru_v1.jsonl"
+OUT_PATH_RU = "popatkus_ru_v0.jsonl"
 DOCX_PATH_EN = "popatkus_en_ready.docx"
 OUT_PATH_EN = "popatkus_en_v0.jsonl"
 DOC_ID_RU = "popatkus_ru"
 DOC_ID_EN = "popatkus_en"
 LANG_RU = "ru"
 LANG_EN = "en"
-GLOSS_RE = re.compile(r"^\s*(?P<term>.{3,40}?)\s+[—–-]\s+(?P<def>.+\S)\s*$")
+OUT_PATH_ALL = "popatkus_all_v0.jsonl"
+GLOSS_RE = re.compile(r"^\s*(?P<term>.{3,80}?)\s+(?:[—–-]|refer\s+to|refers\s+to)\s+(?P<def>.+\S)\s*$")
 TERM_RE = re.compile(r"([A-ZА-ЯЁ])+.+")
 CLAUSE_RE = re.compile(r"^\s*(?P<id>\d+(?:\.\d+)*)\s*[\.\)]\s*(?P<body>.+\S)\s*$")
 SECTION_RE = re.compile(r"^\s*(?P<num>\d{1,2})\.\s+(?P<title>.+\S)\s*$")
 MAX_CHARS = 1000
 OVERLAP = 120
+path = OUT_PATH_ALL
 
 
 def clean(s):
@@ -46,10 +48,6 @@ def iter_children(parent):
         else:
             continue
 
-
-def split_sentences(s: str):
-    s = s.replace("\n", " ").strip()
-    return [x.text.strip() for x in sentenize(s) if x.text.strip()]
 
 def table_to_text(tbl):
     lines = []
@@ -111,8 +109,8 @@ def dump_line(f, obj: dict):
     f.write(json.dumps(obj, ensure_ascii=False) + "\n")
 
 
-def export_jsonl(docx_path, out_path, doc_id, lang):
-    with open(out_path, "w", encoding="utf-8") as f:
+def export_jsonl(docx_path, out_path, doc_id, lang, type="w"):
+    with open(out_path, type, encoding="utf-8") as f:
         prefix_by_id = {}
         doc = docx.Document(docx_path)
         heading_stack = []
@@ -200,7 +198,6 @@ def export_jsonl(docx_path, out_path, doc_id, lang):
                 }
                 dump_line(f, obj)
 
-
             if current["type"] == "glossary":
                 obj = {
                     "id": current["id"],
@@ -264,23 +261,6 @@ def export_jsonl(docx_path, out_path, doc_id, lang):
                 dump_rule_chunk(chunk_text.strip(), chunk_index)
             current = None
 
-            # else:
-            #     obj = {
-            #         "id": current["id"],
-            #         "doc_id": doc_id,
-            #         "clause_id": current["clause_id"],
-            #         "lang": lang,
-            #         "type": current["type"],
-            #         "text": text,
-            #         "heading_path": hp,
-            #         "meta": {
-            #             "source_file": docx_path,
-            #             "version": out_path
-            #         }
-            #     }
-            #     dump_line(f, obj)
-            #     current = None
-
         for child in iter_children(doc):
             if isinstance(child, Paragraph):
                 if child.style.name == "Heading 1":
@@ -301,6 +281,7 @@ def export_jsonl(docx_path, out_path, doc_id, lang):
                                      definition=clean(m.group("def")),
                                      type="glossary",
                                      heading_path=heading_stack.copy())
+                        continue
                     t = CLAUSE_RE.match(child.text)
                     if t:
                         cid = t.group("id")
@@ -334,8 +315,15 @@ def export_jsonl(docx_path, out_path, doc_id, lang):
 if __name__ == "__main__":
     export_jsonl(
         docx_path=DOCX_PATH_RU,
-        out_path=OUT_PATH_RU,
+        out_path=path,
         doc_id=DOC_ID_RU,
         lang=LANG_RU,
-
+        type="w"
+    )
+    export_jsonl(
+        docx_path=DOCX_PATH_EN,
+        out_path=path,
+        doc_id=DOC_ID_EN,
+        lang=LANG_EN,
+        type="a"
     )
