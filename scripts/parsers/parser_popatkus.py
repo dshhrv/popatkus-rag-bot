@@ -7,6 +7,11 @@ from docx.oxml.table import CT_Tbl
 from hashlib import sha1
 from docx.text.paragraph import Paragraph
 from razdel import sentenize
+from zipfile import ZipFile
+from lxml import etree
+
+W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+NS = {"w": W}
 
 DOCX_PATH_RU = "popatkus_ru_ready.docx"
 OUT_PATH_RU = "popatkus_ru_v0.jsonl"
@@ -16,7 +21,7 @@ DOC_ID_RU = "popatkus_ru"
 DOC_ID_EN = "popatkus_en"
 LANG_RU = "ru"
 LANG_EN = "en"
-OUT_PATH_ALL = "popatkus_all_v0.jsonl"
+OUT_PATH_ALL = "popatkus_all_v2.jsonl"
 GLOSS_RE = re.compile(r"^\s*(?P<term>.{3,80}?)\s+(?:[—–-]|refer\s+to|refers\s+to)\s+(?P<def>.+\S)\s*$")
 TERM_RE = re.compile(r"([A-ZА-ЯЁ])+.+")
 CLAUSE_RE = re.compile(r"^\s*(?P<id>\d+(?:\.\d+)*)\s*[\.\)]\s*(?P<body>.+\S)\s*$")
@@ -24,6 +29,23 @@ SECTION_RE = re.compile(r"^\s*(?P<num>\d{1,2})\.\s+(?P<title>.+\S)\s*$")
 MAX_CHARS = 1000
 OVERLAP = 120
 path = OUT_PATH_ALL
+
+
+
+def load_footnotes(doc_path):
+    with ZipFile(doc_path) as zip:
+        root = etree.fromstring(zip.read("word/footnotes.xml"))
+    m = {}
+    for fn in root.xpath(".//w:footnote", namespaces=NS):
+        fid = int(fn.get(f"{{{W}}}id"))
+        if fid <= 0:
+            continue
+        m[fid] = "".join(fn.xpath(".//w:t/text()", namespaces=NS)).strip()
+    return m
+
+
+def footnote_ids_in_paragraph(p):
+    return [int(x) for x in p._p.xpath(".//w:footnoteReference/@w:id")]
 
 
 def clean(s):
@@ -110,13 +132,14 @@ def dump_line(f, obj: dict):
 
 
 def export_jsonl(docx_path, out_path, doc_id, lang, type="w"):
+    footnote_dict = load_footnotes(docx_path)
     with open(out_path, type, encoding="utf-8") as f:
         prefix_by_id = {}
         doc = docx.Document(docx_path)
         heading_stack = []
         current = None
 
-        def start_clause(clause_id, cleaned_text, definition, term=None, heading_path=None, type=None):
+        def start_clause(clause_id, cleaned_text, definition, term=None, heading_path=None, type=None, footnote=None):
             nonlocal current
             hp = list(heading_path) if heading_path else []
             current = {
@@ -127,7 +150,8 @@ def export_jsonl(docx_path, out_path, doc_id, lang, type="w"):
                 "term": term,
                 "definition": [] if definition is None else [clean(definition)],
                 "text_parts": [cleaned_text],
-                "heading_path": hp
+                "heading_path": hp,
+                "footnotes": [] if not footnote else [clean(x) for x in footnote]
             }
             return current
 
@@ -179,6 +203,7 @@ def export_jsonl(docx_path, out_path, doc_id, lang, type="w"):
             hp = current["heading_path"]
             text = "\n".join(current["text_parts"])
             definition = "\n".join(current["definition"])
+            footnotes = current["footnotes"]
 
             def dump_rule_chunk(chunk_text, chunk_index):
                 obj = {
@@ -193,7 +218,8 @@ def export_jsonl(docx_path, out_path, doc_id, lang, type="w"):
                     "heading_path": hp,
                     "meta": {
                         "source_file": docx_path,
-                        "version": out_path
+                        "version": out_path,
+                        "footnotes": footnotes,
                     }
                 }
                 dump_line(f, obj)
@@ -204,12 +230,14 @@ def export_jsonl(docx_path, out_path, doc_id, lang, type="w"):
                     "doc_id": doc_id,
                     "lang": lang,
                     "type": current["type"],
+                    "heading_path": hp,
                     "text": text,
                     "meta": {
                         "source_file": docx_path,
                         "term": current["term"],
                         "definition": definition,
-                        "version": out_path
+                        "version": out_path,
+                        "footnotes": footnotes,
                     }
                 }
                 dump_line(f, obj)
@@ -226,7 +254,8 @@ def export_jsonl(docx_path, out_path, doc_id, lang, type="w"):
                     "heading_path": hp,
                     "meta": {
                         "source_file": docx_path,
-                        "version": out_path
+                        "version": out_path,
+                        "footnotes": footnotes,
                     }
                 }
                 dump_line(f, obj)
@@ -268,19 +297,24 @@ def export_jsonl(docx_path, out_path, doc_id, lang, type="w"):
                     heading_stack = [clean(child.text)]
                     continue
                 elif child.style.name == "Normal":
+                    ids = footnote_ids_in_paragraph(child)
                     if is_section_heading(child):
                         flush()
                         heading_stack = heading_stack[:1] + [child.text]
                         continue
                     m = GLOSS_RE.match(child.text)
                     if m and TERM_RE.match(m.group("term")):
+                        d = clean(m.group("term"))
+                        heading_stack = ["Glossary", f"{d}"]
                         flush()
                         start_clause(None,
                                      cleaned_text=clean(child.text),
                                      term=clean(m.group("term")),
                                      definition=clean(m.group("def")),
                                      type="glossary",
-                                     heading_path=heading_stack.copy())
+                                     heading_path=heading_stack.copy(),
+                                     footnote=[footnote_dict[i] for i in ids if i in footnote_dict]
+                                     )
                         continue
                     t = CLAUSE_RE.match(child.text)
                     if t:
@@ -298,9 +332,12 @@ def export_jsonl(docx_path, out_path, doc_id, lang, type="w"):
                                      term=None,
                                      definition=None,
                                      type="rules",
-                                     heading_path=heading_stack.copy())
+                                     heading_path=heading_stack.copy(),
+                                     footnote=[footnote_dict[i] for i in ids if i in footnote_dict]
+                                     )
                         continue
                     if current is not None:
+                        current["footnotes"].extend(footnote_dict[i] for i in ids if i in footnote_dict)
                         current["text_parts"].append(clean(child.text))
                         if current["type"] == "glossary":
                             current["definition"].append(clean(child.text))
