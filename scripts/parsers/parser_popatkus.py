@@ -9,6 +9,8 @@ from docx.text.paragraph import Paragraph
 from razdel import sentenize
 from zipfile import ZipFile
 from lxml import etree
+import uuid
+
 
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 NS = {"w": W}
@@ -21,11 +23,12 @@ DOC_ID_RU = "popatkus_ru"
 DOC_ID_EN = "popatkus_en"
 LANG_RU = "ru"
 LANG_EN = "en"
-OUT_PATH_ALL = "popatkus_all_v2.jsonl"
+OUT_PATH_ALL = "popatkus_all_v5.jsonl"
 GLOSS_RE = re.compile(r"^\s*(?P<term>.{3,80}?)\s+(?:[—–-]|refer\s+to|refers\s+to)\s+(?P<def>.+\S)\s*$")
 TERM_RE = re.compile(r"([A-ZА-ЯЁ])+.+")
 CLAUSE_RE = re.compile(r"^\s*(?P<id>\d+(?:\.\d+)*)\s*[\.\)]\s*(?P<body>.+\S)\s*$")
 SECTION_RE = re.compile(r"^\s*(?P<num>\d{1,2})\.\s+(?P<title>.+\S)\s*$")
+QDRANT_NS = uuid.uuid5(uuid.NAMESPACE_DNS, "popatkus")
 MAX_CHARS = 1000
 OVERLAP = 120
 path = OUT_PATH_ALL
@@ -93,7 +96,7 @@ def make_id(*parts, n=24):
         return str(x)
 
     payload = "|".join(norm(p) for p in parts)
-    return sha1(payload.encode("utf-8")).hexdigest()[:n]
+    return str(uuid.uuid5(QDRANT_NS, payload))
 
 
 def split_sentences(s):
