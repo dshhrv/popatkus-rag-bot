@@ -1,0 +1,555 @@
+lang: ru
+q: что такое академическая задолженность и когда она возникает?
+rel: 23a11762-d9a2-5d15-b29c-e042b18d6c1b
+note: определение
+
+lang: ru
+q: что считается уважительной причиной неявки на экзамен и в какой срок нужно подать заявку?
+rel: 06fb8648-fffd-5e73-86e2-4f0fe9cd7e89; 2e1a4b73-ba19-583b-b5f6-73521d9fa1be; b707165d-34c3-5a07-8d92-0161c990c433
+note: болезнь как причина + сроки + отклонение заявки
+
+lang: ru
+q: что такое блокирующий элемент контроля и как он влияет на промежуточную оценку?
+rel: 0c2f9b85-5f93-5ebc-b291-e4d85ec8653c; 9f06947c-e039-50a4-8b79-0bb5c7142389
+note: определение + правило что любой элемент может быть блокирующим
+
+lang: ru
+q: как и в какие сроки подать апелляцию на оценку за экзамен или блокирующий элемент контроля?
+rel: 06b45a7d-1af3-5ea4-945e-21a553265bbf; 09ea8338-394f-5449-919d-e74e6d1eca37
+note: подача заявления + сроки рассмотрения
+
+lang: ru
+q: сколько времени дается на пересдачу после появления академической задолженности и что будет если пропустить пересдачу по уважительной причине?
+rel: ee801dc3-2b18-5ba8-892a-e77bf8a99852; c3e8e979-76d5-560a-a431-a77d682be918
+note: срок 1 год + перенос дат/риск отчисления
+
+lang: ru
+q: что такое иуп и что означает эта аббревиатура?
+rel: 2808db77-725c-5424-b165-82a897a67a10
+
+lang: ru
+q: если я использую генеративную модель (например чатгпт) в задании, что именно я обязана указать в описании применения генеративной модели?
+rel: 1677cd4a-646e-5f3a-9f6e-79fed2360742
+
+lang: ru
+q: могу ли я не включать в иуп факультатив academic writing и что тогда нужно сделать вместо него?
+rel: efff9a1d-f2ff-51f0-af67-5c1f250c09f7
+
+lang: ru
+q: как считаются рабочие дни и учебные дни по положению (включается ли суббота)?
+rel: a44282b7-16c5-5f33-9744-e85a8a39839d; 0c4c6fe4-ef61-5b42-8546-3479ca1ee5b2
+
+lang: ru
+q: при переводе или восстановлении, если в прошлой программе не было независимого экзамена, зачтут ли его или назначат заново в иуп?
+rel: 7cc11311-7150-53d8-8351-ab44a8a63fb5
+
+lang: ru
+q: можно ли подать апелляцию просто потому что я не согласна с оценкой?
+rel: bdb04b55-94fb-537b-bb9e-8c19c7454bb5
+
+lang: ru
+q: по каким основаниям можно подать апелляцию на экзамен или блокирующий элемент контроля?
+rel: 6d0a1a0a-b32d-5351-b083-a94a85f3b6e2; 77b6c5c8-268a-58c1-ab9c-37fc8dff761f; 53019524-ed92-5581-8d87-ebe8afb93a59; 2f39ebe3-5c46-53df-94c0-858010cb0d06
+
+lang: ru
+q: кто должен присутствовать на заседании апелляционной комиссии?
+rel: 75b0cd8d-4552-5347-bbd7-335998d81336
+
+lang: ru
+q: что такое прокторинг и зачем он нужен при проведении контроля?
+rel: dfc5d568-833a-5fd1-8f2f-ff87d57ad6ac
+
+lang: ru
+q: что такое кимы и где они используются?
+rel: cbd9feed-348f-52bd-94b6-73e74a562e2a
+
+lang: ru
+q: в чем разница между ведомостью и рабочей ведомостью?
+rel: 15f059ac-db2c-5488-a113-e7c07a62f3de; 354e408a-43e8-5dfa-b712-9097e837fdd0
+
+lang: ru
+q: где должны быть описаны правила дистанционного контроля и за сколько дней до него их обязаны сообщить студентам?
+rel: 53ec929c-022e-5196-95cd-0f15b95bb75b
+
+lang: ru
+q: что делать, если во время дистанционного элемента контроля возникли технические проблемы и я не могу войти в систему или продолжить сдачу?
+rel: c2ac8f61-98da-5e37-b4a7-c551ab9fa9df
+
+lang: ru
+q: если я пришла на элемент контроля, но до получения задания понимаю что не могу участвовать - как это фиксируется? а если я начала выполнять и потом прекратила?
+rel: 61e46f67-b715-562c-aa77-107fa6425517
+
+lang: ru
+q: может ли преподаватель поставить неявку по моей просьбе, если я присутствовала и приступила к выполнению элемента контроля?
+rel: 8b1dd4e2-3c18-54b9-8a54-2dff2428d767
+
+lang: ru
+q: если я пропустила экзамен по болезни, в какой срок подать заявку и через какой сервис, и что в ней должно быть?
+rel: 06fb8648-fffd-5e73-86e2-4f0fe9cd7e89; 2e1a4b73-ba19-583b-b5f6-73521d9fa1be; a889b400-c5df-5b86-81a1-1bfbb2af80f1
+
+lang: ru
+q: может ли преподаватель освободить от экзамена, как считается оценка по промежуточной аттестации и можно ли отказаться и сдавать экзамен?
+rel: 9ff30244-38a2-58f1-9c5e-409ceae20b5d
+
+lang: ru
+q: кто может оценивать элемент контроля и в какие сроки студентам обязаны сообщить оценки и через что именно?
+rel: 0327d4e5-7b16-5d7d-a372-cd4b851b373c; 9f45ae22-295e-508e-8f6d-da6a4745eded
+
+lang: ru
+q: какие консультации преподаватель обязан организовать по результатам текущего контроля?
+rel: 81ab7c08-c9eb-5835-9673-1f43c33d7e30
+
+lang: ru
+q: кто утверждает расписание сессии и что в нем должно быть, когда его должны довести до студентов?
+rel: 1f9650db-f73f-5aa7-97de-8d6053233bcd; b815604c-72ed-517b-9dbc-8dc6898d252b
+
+lang: ru
+q: если я получила неудовлетворительную оценку по внешней оценке, считается ли это академической задолженностью?
+rel: 782d0073-84a6-5f88-9164-78c05b99a396
+
+lang: ru
+q: я пропустила установленный период прохождения внешней оценки, что будет если причина уважительная и что будет если неуважительная?
+rel: 18db68cc-fe46-52be-aee0-efe6dce9fe84
+
+lang: ru
+q: как зачесть международный сертификат по иностранному языку вместо независимого экзамена или дисциплин-пререквизитов?
+rel: 978824f0-fec5-50b2-b4f4-4c81e6293b09; 4cb1263f-45b5-5770-beca-70524219aea9
+
+lang: ru
+q: в каких случаях академический руководитель может отказать в рассмотрении апелляции и как он обязан сообщить решение студенту?
+rel: cb22fd96-f0e4-5910-9360-372667ea3738
+
+lang: ru
+q: что будет, если студент или преподаватель не явились на заседание апелляционной комиссии?
+rel: f0e8840a-7325-59e6-bff8-358d9da23040
+
+lang: ru
+q: что именно рассматривается на апелляции?
+rel: 115ef2a0-3199-504f-a421-075f83acb5d7
+
+lang: ru
+q: если апелляцию удовлетворили, что происходит с результатом контроля?
+rel: 1624a8b0-119e-5335-af83-71a32f0a4d8a
+
+lang: ru
+q: как организуется первая пересдача, кто ее принимает, и может ли формат отличаться от экзамена?
+rel: 4e6cb8da-7b84-5ed0-acdc-dcb59b55a906; d58c48d8-cb04-5bf4-a263-e17dda7b7d71; e9893eea-b9aa-581a-8990-f25cb7f877e9
+
+lang: ru
+q: когда студенту могут разрешить повторное изучение дисциплины, сколько дисциплин максимум, какие есть условия?
+rel: 7df9a335-9705-55de-be60-9581abd8a78b; d856c4be-e7ec-5a80-b1fa-7bda2c34f688; 9a303208-8948-5917-a0e6-33512ad35494; 49223c97-ddce-57b9-abd7-e522b6fface4; 34863ec9-6611-583b-bb72-b6abb78094a4
+
+lang: ru
+q: если у студента куд превысил критическое значение, кто и какие дополнительные показатели добросовестности обязан анализировать?
+rel: 9c9a9e35-bdd3-5cf7-a9a4-32aad022c19f
+
+lang: ru
+q: могут ли отчислить за недобросовестное освоение образовательной программы и невыполнение учебного плана?
+rel: 3bbb56f2-36c4-54eb-9b93-2835d3af7788
+
+lang: ru
+q: что делает менеджер образовательной программы со списками студентов, у которых куд выше критического значения?
+rel: bad9a5f4-5d2b-5332-9985-354f3dd48a98
+
+lang: ru
+q: как и через что студенту сообщают о необходимости ликвидировать задолженность?
+rel: f271afca-9830-5bcd-b29e-d7d32fa57f8a
+
+lang: ru
+q: если я не выбрала тему и руководителя обязательного вкр в срок, что происходит дальше, кто назначает тему и руководителя и в какие сроки?
+rel: 7ca8fca6-7ace-50f5-b95a-bbb5d8e07e41
+
+lang: ru
+q: можно ли пересдать дисциплину только чтобы повысить уже удовлетворительную оценку, и какие есть исключения из запрета?
+rel: 25cb3557-1716-504c-91a3-6c2215f27608
+
+lang: ru
+q: если по дисциплине есть элементы контроля, которые не подлежат пересдаче, и у меня по ним нет оценок, как это учитывается при расчете итоговой оценки?
+rel: 55e2a1e2-e981-5fa9-b5a1-46716995ad7b
+
+lang: ru
+q: как проходит вторая пересдача, может ли она быть дистанционной, сколько человек в комиссии, кто входит в комиссию и кто не входит?
+rel: 9afd0f88-d1d7-5d70-bed8-93f15688c9cc; 145093a5-7f5f-51c2-8711-ada1bcb2bb96
+
+lang: ru
+q: кто и как часто утверждает расписание пересдач для очников, какие предельные сроки окончания пересдач для долгов за 3-4 и за 1-2 модули?
+rel: 4307391d-a806-5ac7-9b4a-42e499aff9d4; 453d986c-4a73-5d03-98bb-bff35f0e6707
+
+lang: ru
+q: что будет если не сдать дисциплину после повторного изучения?
+rel: c4b44641-c4e3-5316-87a1-0019bd39b68a
+
+lang: ru
+q: за сколько дней для студентов с акакдемической задолженностью сообщается расписание?
+rel: 646c6aa3-44a0-56e0-aad4-11830e9621c8
+
+lang: ru
+q: если очередная внешняя оценка по цифровым компетенциям оказалась ниже прежней на 2 балла или больше, что будет с зачтенными цифровыми компетенциями?
+rel: 21dab5d6-84ca-5556-b2a7-bab9acd8cc99
+
+lang: ru
+q: как и в какие сроки проверяют project proposal на недопустимые заимствования?
+rel: 7b341677-bdfc-5c40-9014-0df7e96a6a30
+
+lang: ru
+q: обязана ли я участвовать в защите project proposal, если в моем иуп нет дисциплины academic writing?
+rel: 1f590552-d585-58d3-b39a-147a0b8afa29
+
+lang: ru
+q: куда передаются оценки за защиту project proposal и кто объявляет эти оценки членам гэк?
+rel: a07a97a7-83b4-5fe4-b6e7-f6f03208f717
+
+lang: ru
+q: если по эпп предусмотрена защита перед комиссией, кто выставляет оценку и кто заполняет ведомость или оценочный лист?
+rel: 0b39510b-4e73-5f48-b283-4c6dafddac21
+
+lang: ru
+q: как проводится вторая пересдача в письменной форме, кто должен присутствовать, кто читает и оценивает работу, и в какие сроки обязаны выставить оценку?
+rel: ff3dec04-055e-517f-a0fe-a320440db89a
+
+lang: ru
+q: как выставляется итоговая оценка за вторую пересдачу и что происходит, если оценки членов комиссии не совпадают?
+rel: 72c3445e-e034-5703-a2b9-823c0924d532
+
+lang: ru
+q: какой протокол оформляется по итогам второй пересдачи и что в нем должно быть, а если пересдача дистанционная - куда отправляют копию?
+rel: 008e7311-fedb-54e1-97fc-ebe5137b2ff9
+
+lang: ru
+q: какой минимальный промежуток должен быть между первой и второй пересдачей?
+rel: 911e8a98-7be0-529f-942f-cea523ed2ed6
+
+lang: ru
+q: что делать, если расписание пересдач сильно конфликтует с расписанием занятий?
+rel: 7bed46f2-68fc-5430-a936-f594c96d85fe
+
+lang: ru
+q: если я пропустила экзамен в период сессии по уважительной причине, на какую дату меня поставят для сдачи?
+rel: e8c728c4-a55e-5f3d-b321-6f3f1e74da11
+
+lang: ru
+q: через что согласовывается дата пересдачи между студентом и учебным офисом?
+rel: 43727158-e4cb-598f-bd17-3ebecb8edb8c
+
+lang: ru
+q: если студент или преподаватель не может явиться на пересдачу по уважительной причине, как нужно уведомлять университет?
+rel: 2316e7cf-8db6-5477-8377-b2014be9d982
+
+lang: ru
+q: если по окончании периода пересдач студент не успел использовать все положенные пересдачи, как это трактуется по правилам?
+rel: 1d6b09f8-95ac-5f29-b501-84319592ea5f
+
+lang: ru
+q: можно ли пересдать до начала периода пересдач во время текущей сессии?
+rel: 972fa4e0-6ef4-54a8-9066-119b1b9e49ae
+
+
+
+
+
+
+
+
+
+lang: en
+q: What is an academic failure (failed assignment) and when does it occur under the Regulations?
+rel: 1727dc66-b81e-52cb-9a72-3611b4933c4b
+
+lang: en
+q: What is a blocking assessment element, and how can it affect your interim grade for a course?
+rel: 1bd8f5e5-b8ce-5bf4-9602-004c1684dd10; d8c557cf-9e4f-5daa-816f-dad2086cd04e
+
+lang: en
+q: What is an individual curriculum (IC), and what does this abbreviation mean in the HSE Regulations?
+rel: 3716c858-0de4-508a-9897-309061b4627b
+
+lang: en
+q: What is proctoring, and why can it be required during an assessment element?
+rel: 6bab07ff-ff70-5101-9a2d-36b184ed729e
+
+lang: en
+q: How do the Regulations define working days and school days, and is Saturday counted?
+rel: b9d26c73-5611-57d2-86db-588f6042a609; 349d924a-7209-5d2a-b56d-f44aecdf6182
+
+lang: en
+q: How can you submit an appeal against an exam grade or a blocking assessment element, and what are the deadlines?
+rel: 9cebf4d7-c7bd-59e4-b332-ec9aa4298527
+
+lang: en
+q: On what grounds is a student allowed to appeal an exam or blocking assessment element result?
+rel: a59b04f2-1fd6-519f-b316-daee23c810d8; 2f06e338-6caf-5103-b13f-66049b2e6288; 2456d70b-a77a-54e1-a932-0edd861376b4; 6014f08e-be0f-5ce5-9ffb-936275c0d239
+
+lang: en
+q: Can you file an appeal simply because you disagree with the grade you received?
+rel: bf696567-e1d5-5ae4-95fe-6d93c58f6b9b
+
+lang: en
+q: What should you do if technical problems prevent you from logging in or continuing a remote assessment?
+rel: 24a9a77b-f4d5-5e82-88f3-86d0783ce90d
+
+lang: en
+q: How is the first retake organised: who administers it, can the examiner be replaced, and can the format differ from the original exam?
+rel: 53acc3ae-1720-51ec-b107-eaee54506532; 8bf33f08-6952-5978-bd5f-5cf3e8bb84a7; e7a54883-0373-5c82-a5f0-7e8cd5c32f1a
+
+lang: en
+q: How does the second retake work: can it be remote, what is the minimum board size, and who cannot chair the board?
+rel: 5e1894cd-0ae0-5a78-9f62-fe2e47592412; 6fbad9d8-a204-5b07-b99e-5414b1f1a1f4
+
+lang: en
+q: What is the minimum required time interval between the first and second retake?
+rel: 2d666b3a-fe70-5771-9694-e725c9060a44
+
+lang: en
+q: If you did not choose a thesis/PTE topic and supervisor by the deadline, who assigns them and within what timeframe?
+rel: 04f0d254-d29d-5e2f-9949-2f91015c91ab
+
+lang: en
+q: How can you transfer an international foreign-language certificate instead of an independent exam or prerequisite courses?
+rel: 039b3d68-a394-5487-b51b-78db94fd6a25; d7ffa658-b44a-5c7c-a943-2b394ff7da1a
+
+lang: en
+q: If you use a generative AI model in an assignment, what exactly must be included in the description section?
+rel: 4804dcc2-e1cc-58ed-9f9d-887fdc309afc
+
+lang: en
+q: What are Control and Measuring Materials used for?
+rel: f7cba544-a44e-5dc5-8b8b-232249feb550
+
+lang: en
+q: Are there exam preparation days before exams?
+rel: 610226b5-1a4a-50a3-ac11-b432750ead72
+
+lang: en
+q: How are ongoing assessment grades recorded?
+rel: 4bd68c02-48b6-57b9-a1f2-15c3e7f6abe8
+
+lang: en
+q: When can a teacher offer a retake for an element under 30%?
+rel: 95265963-685d-5068-8bc4-ce4a756d4578
+
+lang: en
+q: How is absence from an assessment recorded?
+rel: a3a89e7a-2713-58b6-a80d-74df58e803b0
+
+lang: en
+q: What is the deadline to submit an application to validate a missed exam reason?
+rel: 1a37cace-977d-51b5-a58c-22408566ab5e
+
+lang: en
+q: How is a missed exam reason handled for illness vs other reasons?
+rel: d2aaa3c8-9fe5-511c-b564-ebd7dc64fefe
+
+lang: en
+q: When can a teacher exempt a student from an exam?
+rel: d401fa7a-234c-59c7-9806-c151b59c746a
+
+lang: en
+q: What consultation obligations do teachers have during office hours?
+rel: e47a2ca9-63fe-51db-aa9b-4cb24489d6d6
+
+lang: en
+q: How can a student request to reschedule an exam?
+rel: 3b102a20-1eb7-5c7e-8e08-899be87d3a7f
+
+lang: en
+q: Can an interim grade be revised after a make-up exam?
+rel: 633b9057-549f-57b5-a0ec-4d631af5eed6
+
+lang: en
+q: What is an external assessment?
+rel: 221f441d-a1f0-55a0-abcf-aa940b1c2932
+
+lang: en
+q: Does a valid absence from a mandatory external assessment count as academic failure?
+rel: c456f51f-0a62-5ebe-8a0f-640428e1e201
+
+lang: en
+q: Who calculates the Student Progress Assessment?
+rel: 93d00001-0434-5502-9c25-40efc4252d52
+
+lang: en
+q: What happens if a failed assignment is still unresolved after three attempts?
+rel: 091f74f3-bcba-5d91-87ca-0542d54fca13
+
+lang: en
+q: What does the term Academic supervisor mean in the Regulations?
+rel: f986efad-b4c9-5f95-bb5a-386a659f785c
+
+lang: en
+q: What is meant by asynchronous learning in HSE courses?
+rel: 414630b7-cd98-5d2c-b112-4ed148a87ea0
+
+lang: en
+q: What is an asynchronous assessment element, and how is it typically completed?
+rel: 722dbc9b-de0d-5cbd-854b-d640aec0de2d
+
+lang: en
+q: How do the Regulations define blended learning?
+rel: 9932ddae-bf43-5887-b703-04b4d5b20933
+
+lang: en
+q: What is blended instruction according to the Regulations?
+rel: e805f28f-8401-5e97-b46b-393e3a22e47c
+
+lang: en
+q: What is a blended assessment element?
+rel: f2597333-5552-5434-b2f0-b5e7dddf1c2c
+
+lang: en
+q: Who is the faculty dean in the terminology of the Regulations?
+rel: fa3abc12-6b4d-5961-aa31-8603445a7653
+
+lang: en
+q: What does the Regulations mean by a subdivision?
+rel: d577f8d3-7ab2-5516-ae66-89c2265584f9
+
+lang: en
+q: What is a thesis, and what kind of work is it?
+rel: 72f949ee-a474-57ff-a283-a262bb500391
+
+lang: en
+q: What is the 10-point grading scale and what grade range does it use?
+rel: 27e2382e-8fe5-57a3-b35e-6215cf8376bb
+
+lang: en
+q: Can a teacher grade assessment elements on a scale other than 10 points, and where must the conversion be explained?
+rel: cc4791aa-20ec-51f7-91bf-a626706dd20a
+
+lang: en
+q: What types of non-linear rules may be used to calculate interim grades?
+rel: 61e316e8-fd29-51db-9580-99c2b73eb2a0
+
+lang: en
+q: In a course with several interim assessments, can earlier interim grades affect the final grade?
+rel: 5a0248b9-7e09-504a-8a4a-23e128d6e3b3
+
+lang: en
+q: For a course with an examination, when is the interim grade calculated after the exam?
+rel: 69e3a505-5262-5932-bf8f-b4cff8ffbc17
+
+lang: en
+q: How is an interim grade registered in the online record, and what does the EIOS service do?
+rel: 638d1cf4-de58-56bb-ae5c-bb9e5a7d6100
+
+lang: en
+q: What is an educational agreement in fee-based studies?
+rel: f101b765-9c3e-5ab8-abe8-3f431f643c56
+
+lang: en
+q: What is an agreement regarding a component of a degree programme?
+rel: a320f261-06eb-5202-b9d4-79b40d83f458
+
+lang: en
+q: What does remote instruction mean in the Regulations?
+rel: 093b95f6-455e-51a8-b275-7d1c37b77500
+
+lang: en
+q: What is the Syllabus Builder and what is it used for?
+rel: 08c7888a-3b78-5f2e-8a90-c79934e1528d
+
+lang: en
+q: What is synchronous learning in the HSE terminology?
+rel: cfc08102-ad8e-5347-8991-442e9bcc0616
+
+lang: en
+q: What is EIOS and what does it include?
+rel: 4c5ef0db-9215-50d2-88ba-99e64772d908
+
+lang: en
+q: What are interim assessment record sheets used for?
+rel: 7b12420d-f304-5e1b-ab23-e16e6771f416
+
+lang: en
+q: What is a course syllabus (including for internships)?
+rel: 203bf1b9-afcb-5c5f-a49b-2c2564b14258
+
+lang: en
+q: What is an assessment element in ongoing assessment?
+rel: c4de2ead-a5a9-5cfd-a793-e3e554713c5d
+
+lang: en
+q: What is the purpose of ongoing assessments during a course?
+rel: c48d1565-361f-5abb-a664-8d826e81abc9
+
+lang: en
+q: Where are key course parameters, including assessment rules, described?
+rel: 5805916c-e46c-55eb-8fbe-07a50e2e9083
+
+lang: en
+q: How are interim grades calculated from grades for assessment elements?
+rel: 81cd6a59-7692-59ee-ac41-ecf33a146923
+
+lang: en
+q: Which assessment elements are typically not eligible for retakes?
+rel: 5e2c8924-1b58-5c31-a78e-65bf1debd67b
+
+lang: en
+q: What formats can assessment elements take?
+rel: 2f5bca57-0d1e-574c-802b-d0832affac27
+
+lang: en
+q: What responsibilities do students have regarding the curriculum and avoiding academic failures?
+rel: e7731be9-9665-5db1-8ab6-6b7827a790a9
+
+
+
+
+lang: ru
+q: правда ли, что некоторые студенты используют чатгпт, но делают вид, что все написали сами?
+
+lang: ru
+q: можно ли считать использование генеративных моделей формой списывания, если преподаватель прямо это не запретил?
+
+lang: ru
+q: почему одни студенты получают высокие оценки за те же работы, за которые другим ставят минимум?
+
+lang: ru
+q: действительно ли преподаватели иногда завышают оценки «любимчикам»?
+
+lang: ru
+q: можно ли обойти антиплагиат, не нарушая формально никаких правил?
+
+lang: ru
+q: правда ли, что большинство курсовых никто не читает полностью?
+
+lang: ru
+q: насколько честно оцениваются устные ответы на экзаменах?
+
+lang: ru
+q: может ли преподаватель понизить оценку из-за личной неприязни?
+
+lang: ru
+q: почему студенты боятся задавать вопросы преподавателям, даже когда ничего не понимают?
+
+lang: ru
+q: реально ли успешно учиться, почти не посещая занятия?
+
+lang: ru
+q: используют ли преподаватели те же нейросети при проверке работ?
+
+lang: ru
+q: правда ли, что групповые проекты часто делают один-два человека за всех?
+
+lang: ru
+q: почему некоторые дисциплины выглядят как формальность без реального обучения?
+
+lang: ru
+q: можно ли считать учебную систему справедливой для всех студентов?
+
+lang: ru
+q: действительно ли высокая успеваемость всегда означает реальные знания?
+
+lang: ru
+q: почему студенты чаще ищут ответы в интернете, чем в учебных материалах курса?
+
+lang: ru
+q: могут ли рекомендации и связи влиять на академические решения?
+
+lang: ru
+q: правда ли, что часть экзаменов можно сдать просто «угадав формат»?
+
+lang: ru
+q: зачем университет запрещает то, что на практике используют почти все?
+
+lang: ru
+q: можно ли считать честным обучение, где выживает не самый знающий, а самый адаптивный?
