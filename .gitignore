@@ -117,7 +117,22 @@ ipython_config.py
 .pdm-python
 .pdm-build/
 
+
+*.jsonl
+
 csv/
+hpo_rag.db
+data/*
+!data/
+!data/golden-set.txt
+!data/golden_set.jsonl
+!data/golden_set_ru_from_en.jsonl
+!data/popatkus_points_5_base.jsonl
+!data/popatkus_points_5_small.jsonl
+!data/popatkus_points_5_large.jsonl
+!data/popatkus_en_ready.docx
+!data/popatkus_ru_ready.docx
+!data/popatkus_all_v5.jsonl
 
 # pixi
 #   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
@@ -212,6 +227,6 @@ __marimo__/
 .idea/
 __pycache__/
 *.pyc
-*.jsonl
+
 data/processed/
 
