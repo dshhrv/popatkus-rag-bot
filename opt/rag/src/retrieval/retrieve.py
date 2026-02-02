@@ -5,9 +5,9 @@ from src.retrieval.glossary import detect_terms, get_definitions
 from scripts.translate import en2ru
 
 
-ONLY_ENGLISH = True
+ONLY_ENGLISH = False
 
-def retrieve_top30(query, lang, bm25, ids, meta, top_each=100, top_final=30, only_english=ONLY_ENGLISH):
+def retrieve_top(query, lang, bm25, ids, meta, top_dense=80, top_bm25=10, top_final=10, only_english=ONLY_ENGLISH):
     if only_english==True:
         query = en2ru(query)
         lang = "ru"
@@ -21,8 +21,8 @@ def retrieve_top30(query, lang, bm25, ids, meta, top_each=100, top_final=30, onl
     bm25_ids_ranked = bm25_search(bm25=bm25, ids=ids, query_text=query, lang=lang, top_k=top_each, ngram_n=ngram_n)
     dense_ids_ranked = dense_search(coll_name=COLLECTION_NAME, lang=lang, text=query, limit=top_each)
     final_ids = rrf_fuse(ranked_lists={"dense": dense_ids_ranked, "bm25": bm25_ids_ranked},
-    weights={"dense": 1.5, "bm25": 1.0},
-    k=60,
+    weights={"dense": 2.5, "bm25": 0.3},
+    k=15,
     key=lambda r: r,
     top=top_final)
     return final_ids, definitions

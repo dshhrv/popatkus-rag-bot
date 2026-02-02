@@ -6,7 +6,7 @@ import pickle
 import argparse
 from src.retrieval.glossary import make_dict
 from src.retrieval.bm25 import load_index
-from src.retrieval.retrieve import retrieve_top30
+from src.retrieval.retrieve import retrieve_top
 
 
 BM25_INDEX_PATH = "/opt/rag/data/bm25index.pkl"
@@ -22,7 +22,7 @@ def main():
     args = parser.parse_args()
     make_dict(args.in_path)
     bm25, ids, meta = load_index(args.index_path)
-    final_ids, definitions = retrieve_top30(
+    final_ids, definitions = retrieve_top(
         query=args.query,
         lang=args.lang,
         bm25=bm25,
