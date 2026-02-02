@@ -76,8 +76,6 @@ def bm25_build(in_path, ngram_n=N_GRAM_SIZE, k1=1.5, b=0.75):
 
 def bm25_search(bm25, ids, query_text, lang="ru", top_k=30, ngram_n=N_GRAM_SIZE):
     model = bm25.get(lang)
-    if model is None:
-        return []
     doc_ids = ids.get(lang, [])
     q_terms = add_ngrams(tok(query_text, lang), n=ngram_n)
     scores = model.get_scores(q_terms)

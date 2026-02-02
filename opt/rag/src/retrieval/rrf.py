@@ -1,4 +1,4 @@
-def rrf_fuse(ranked_lists, weights, k=60, key=lambda x: x["id"], top=30):
+def rrf_fuse(ranked_lists, weights, k=15, key=lambda x: x["id"], top=10):
     scores = {}
     best = {}
     for name, items in ranked_lists.items():
