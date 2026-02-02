@@ -15,10 +15,10 @@ import uuid
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 NS = {"w": W}
 
-DOCX_PATH_RU = "popatkus_ru_ready.docx"
-OUT_PATH_RU = "popatkus_ru_v0.jsonl"
-DOCX_PATH_EN = "popatkus_en_ready.docx"
-OUT_PATH_EN = "popatkus_en_v0.jsonl"
+DOCX_PATH_RU = "/opt/rag/data/popatkus_ru_ready.docx"
+OUT_PATH_RU = "/opt/rag/data/popatkus_ru_v0.jsonl"
+DOCX_PATH_EN = "/opt/rag/data/popatkus_en_ready.docx"
+OUT_PATH_EN = "/opt/rag/data/popatkus_en_v0.jsonl"
 DOC_ID_RU = "popatkus_ru"
 DOC_ID_EN = "popatkus_en"
 LANG_RU = "ru"
@@ -31,7 +31,7 @@ SECTION_RE = re.compile(r"^\s*(?P<num>\d{1,2})\.\s+(?P<title>.+\S)\s*$")
 QDRANT_NS = uuid.uuid5(uuid.NAMESPACE_DNS, "popatkus")
 MAX_CHARS = 1000
 OVERLAP = 120
-path = OUT_PATH_ALL
+path = OUT_PATH_RU
 
 
 
@@ -360,10 +360,10 @@ if __name__ == "__main__":
         lang=LANG_RU,
         type="w"
     )
-    export_jsonl(
-        docx_path=DOCX_PATH_EN,
-        out_path=path,
-        doc_id=DOC_ID_EN,
-        lang=LANG_EN,
-        type="a"
-    )
+    # export_jsonl(
+    #     docx_path=DOCX_PATH_EN,
+    #     out_path=path,
+    #     doc_id=DOC_ID_EN,
+    #     lang=LANG_EN,
+    #     type="a"
+    # )

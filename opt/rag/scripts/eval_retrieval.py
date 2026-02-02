@@ -3,21 +3,25 @@ import sys
 import json
 import math
 from pathlib import Path
+from transformers import MarianTokenizer, MarianMTModel
+import re
+import numpy as np
+
 import pandas as pd
 import matplotlib.pyplot as plt
+import torch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from src.retrieval.dense import dense_search, COLLECTION_NAME
-from src.retrieval.bm25 import bm25_search, load_index, INDEX_PATH
+from src.retrieval.retrieve import ONLY_ENGLISH
 from src.retrieval.rrf import rrf_fuse
-def norm_id(x):
-    if isinstance(x, str):
-        return x
-    if isinstance(x, dict):
-        return x.get("sha1") or x.get("id") or str(x)
-    if hasattr(x, "payload"):
-        return x.payload.get("sha1") or str(getattr(x, "id", x))
-    return str(x)
+from scripts.translate import en2ru, MODEL_NAME_TRANSLATE
+from time import perf_counter
+from src.retrieval.dense import dense_search, COLLECTION_NAME, MODEL_NAME
+from src.retrieval.bm25 import bm25_search, load_index, INDEX_PATH, N_GRAM_SIZE
+
+
+
+
 
 def dump_line(f, obj):
     f.write(json.dumps(obj, ensure_ascii=False) + "\n")
@@ -42,6 +46,7 @@ def ndcg_at_k(ranked, rel_set, k):
 
 
 def plot(agg, out_png, metric, title):
+    out_png = re.sub("intfloat/", "", str(out_png))
     plt.figure()
     plt.plot(agg["k"], agg[metric], marker="o")
     plt.xlabel("K")
@@ -52,26 +57,35 @@ def plot(agg, out_png, metric, title):
     plt.savefig(out_png)
 
 
-def run_retrieval(mode, golden_path, runs_path, bm25, ids, meta, top_each, top_final, weights, k0):
+def run_retrieval(mode, golden_path, runs_path, bm25, ids, meta, top_dense, top_bm25,
+                  top_final, weights, k0, mt_tok, mt_model, translate_en=True, debug_translate=False):
     runs_path = Path(runs_path)
     runs_path.parent.mkdir(parents=True, exist_ok=True)
+    times_ms = []
 
     with open(golden_path, "r", encoding="utf-8") as fin, open(runs_path, "w", encoding="utf-8") as fout:
         for line in fin:
+            t0 = perf_counter()
             obj = json.loads(line)
             qid = obj["id"]
             lang = obj.get("lang", "ru")
             text = obj["text"]
-
+            if translate_en and lang == "en":
+                ttr0 = perf_counter()
+                text = en2ru(text, tok=mt_tok, model=mt_model, device="cpu", max_new_tokens=128)
+                ttr1 = perf_counter()
+                if debug_translate:
+                    print("translate_ms", (ttr1 - ttr0) * 1000)
+                lang = "ru"
             if mode == "dense":
-                ranked = dense_search(coll_name=COLLECTION_NAME, lang=lang, text=text, limit=top_each)
+                ranked = dense_search(coll_name=COLLECTION_NAME, lang=lang, text=text, limit=top_dense, debug=True)
             elif mode == "bm25":
-                ngram_n = meta.get("ngram_n", 2)
-                ranked = bm25_search(bm25=bm25, ids=ids, query_text=text, lang=lang, top_k=top_each, ngram_n=ngram_n)
+                ngram_n = meta.get("ngram_n", N_GRAM_SIZE)
+                ranked = bm25_search(bm25=bm25, ids=ids, query_text=text, lang=lang, top_k=top_bm25, ngram_n=ngram_n)
             elif mode == "rrf":
-                ngram_n = meta.get("ngram_n", 2)
-                bm25_ranked = bm25_search(bm25=bm25, ids=ids, query_text=text, lang=lang, top_k=top_each, ngram_n=ngram_n)
-                dense_ranked = dense_search(coll_name=COLLECTION_NAME, lang=lang, text=text, limit=top_each)
+                ngram_n = meta.get("ngram_n", N_GRAM_SIZE)
+                bm25_ranked = bm25_search(bm25=bm25, ids=ids, query_text=text, lang=lang, top_k=top_bm25, ngram_n=ngram_n)
+                dense_ranked = dense_search(coll_name=COLLECTION_NAME, lang=lang, text=text, limit=top_dense, debug=False)
                 ranked = rrf_fuse(
                     ranked_lists={"dense": dense_ranked, "bm25": bm25_ranked},
                     weights=weights,
@@ -79,8 +93,11 @@ def run_retrieval(mode, golden_path, runs_path, bm25, ids, meta, top_each, top_f
                     key=lambda r: r,
                     top=top_final,
                 )
-            ranked = [norm_id(x) for x in ranked]
             dump_line(fout, {"id": qid, "retrieved": ranked})
+            t1 = perf_counter()
+            times_ms.append((t1 - t0) * 1000)
+
+    return times_ms
 
 
 def eval_metrics(golden_path, runs_path, ks):
@@ -103,8 +120,8 @@ def eval_metrics(golden_path, runs_path, ks):
                     {
                         "id": qid,
                         "k": k,
-                        "recall": hit_cnt / len(rel) if rel else 0.0,
-                        "precision": hit_cnt / k if k else 0.0,
+                        "recall": hit_cnt / len(rel) if len(rel) != 0 else 0.0,
+                        "precision": hit_cnt / k,
                         "hit": 1.0 if hit_cnt > 0 else 0.0,
                         "mrr": mrr_at_k(ranked, rel, k),
                         "ndcg": ndcg_at_k(ranked, rel, k),
@@ -115,52 +132,110 @@ def eval_metrics(golden_path, runs_path, ks):
     return df, agg
 
 
+def has_en_queries(golden_path):
+    with open(golden_path, "r", encoding="utf-8") as f:
+        for line in f:
+            obj = json.loads(line)
+            if obj.get("lang", "ru") == "en":
+                return True
+    return False
+
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--golden", default="data/golden_set.jsonl")
     parser.add_argument("--mode", choices=["dense", "bm25", "rrf"], required=True)
-    parser.add_argument("--top-each", type=int, default=100)
+    parser.add_argument("--top-dense", type=int, default=100)
+    parser.add_argument("--top-bm25", type=int, default=100)
     parser.add_argument("--top-final", type=int, default=30)
     parser.add_argument("--rrf-k0", type=int, default=60)
     parser.add_argument("--dense-w", type=float, default=1.0)
     parser.add_argument("--bm25-w", type=float, default=1.0)
-    parser.add_argument("--ks", default="1,3,5,10,20,30")
+    parser.add_argument("--ks", default="1,3,5,10,15")
 
     parser.add_argument("--runs", default=None)
     parser.add_argument("--out-csv", default=None)
     parser.add_argument("--out-dir", default=None)
+    parser.add_argument("--only-english", action="store_true")
+
+    
+    
+    
     args = parser.parse_args()
     if args.runs is None:
-        args.runs = f"data/runs_{args.mode}.jsonl"
+        args.runs = f"data/runs/runs_{args.mode}_{COLLECTION_NAME}_dense_{args.dense_w}_bm25_{args.bm25_w}_rrfk_{args.rrf_k0}_{args.only_english}.jsonl"
     if args.out_csv is None:
-        args.out_csv = f"csv/metrics_{args.mode}.csv"
+        args.out_csv = f"graph/{args.mode}_{COLLECTION_NAME}_dense_{args.dense_w}_bm25_{args.bm25_w}_rrfk_{args.rrf_k0}_{args.only_english}/data.csv"
     if args.out_dir is None:
-        args.out_dir = f"graph/{args.mode}"
-    ks = [int(x) for x in args.ks.split(",")]
+        args.out_dir = f"graph/{args.mode}_{COLLECTION_NAME}_dense_{args.dense_w}_bm25_{args.bm25_w}_rrfk_{args.rrf_k0}_{args.only_english}"
+    
+    translate_en = args.only_english and has_en_queries(args.golden)
+
+    mt_tok = None
+    mt_model = None
+    if translate_en:
+        mt_tok = MarianTokenizer.from_pretrained(MODEL_NAME_TRANSLATE)
+        mt_model = MarianMTModel.from_pretrained(MODEL_NAME_TRANSLATE).to("cpu")
+        mt_model.eval()
+
+    
     bm25, ids, meta = load_index(INDEX_PATH)
     weights = {"dense": args.dense_w, "bm25": args.bm25_w}
-
-    run_retrieval(
+    ks = [int(x) for x in args.ks.split(",")]
+    t0 = perf_counter()
+    times_ms = run_retrieval(
         mode=args.mode,
         golden_path=args.golden,
         runs_path=args.runs,
         bm25=bm25,
         ids=ids,
         meta=meta,
-        top_each=args.top_each,
+        top_dense=args.top_dense,
+        top_bm25 = args.top_bm25,
         top_final=args.top_final,
         weights=weights,
         k0=args.rrf_k0,
+        mt_tok=mt_tok,
+        mt_model=mt_model,
+        translate_en=translate_en,
+        debug_translate=False
     )
+    total_ms = (perf_counter() - t0) * 1000
+    print(f"TOTAL_TIME_S({args.mode}): {total_ms:.3f}")
+    p95 = np.percentile(times_ms, 95)
+    
+    
+    
     _, agg = eval_metrics(args.golden, args.runs, ks)
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    
+    with open(f"{args.out_dir}/timing.json", "w", encoding="utf-8") as f:
+        nq = sum(1 for _ in open(args.golden, "r", encoding="utf-8"))
+        json.dump({
+            "mode": args.mode,
+            "model": MODEL_NAME,
+            "collection": COLLECTION_NAME,
+            "n_queries": nq,
+            "total_time_ms": total_ms,
+            "ms_per_query": total_ms / nq if nq else None,
+            "p95": p95,
+            "top_dense": args.top_dense,
+            "top_bm25": args.top_bm25,
+            "top_final": args.top_final,
+            "rrf_k0": args.rrf_k0,
+            "dense_w": args.dense_w,
+            "bm25_w": args.bm25_w,  
+        }, f, ensure_ascii=False, indent=2)
+    
     Path(args.out_csv).parent.mkdir(parents=True, exist_ok=True)
     agg.to_csv(args.out_csv, index=False)
-    plot(agg, str(out_dir / f"{args.mode}_ndcg.png"), "ndcg", f"{args.mode}: nDCG@K")
-    plot(agg, str(out_dir / f"{args.mode}_recall.png"), "recall", f"{args.mode}: Recall@K")
-    plot(agg, str(out_dir / f"{args.mode}_mrr.png"), "mrr", f"{args.mode}: MRR@K")
-    plot(agg, str(out_dir / f"{args.mode}_precision.png"), "precision", f"{args.mode}: Precision@K")
+    plot(agg, str(out_dir / f"{MODEL_NAME}_{args.mode}_{N_GRAM_SIZE}_ndcg.png"), "ndcg", f"{MODEL_NAME} - {args.mode}_only: nDCG@K")
+    plot(agg, str(out_dir / f"{MODEL_NAME}_{args.mode}_{N_GRAM_SIZE}_recall.png"), "recall", f"{MODEL_NAME} - {args.mode}_only: Recall@K")
+    plot(agg, str(out_dir / f"{MODEL_NAME}_{args.mode}_{N_GRAM_SIZE}_mrr.png"), "mrr", f"{MODEL_NAME} - {args.mode}_only: MRR@K")
+    plot(agg, str(out_dir / f"{MODEL_NAME}_{args.mode}_{N_GRAM_SIZE}_precision.png"), "precision", f"{MODEL_NAME} - {args.mode}_only: Precision@K")
+    plot(agg, str(out_dir / f"{MODEL_NAME}_{args.mode}_{N_GRAM_SIZE}_hit.png"), "hit", f"{MODEL_NAME} - {args.mode}_only: Hit@K")
 
 
 if __name__ == "__main__":
