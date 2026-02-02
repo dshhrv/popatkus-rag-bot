@@ -26,6 +26,11 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+graph/
+qdrant/*
+!qdrant/
+!qdrant/docker-compose.yml
+!qdrant/upload
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -118,21 +123,34 @@ ipython_config.py
 .pdm-build/
 
 
+opt/rag/.venv/
+opt/rag/data/
+opt/rag/csv/
+opt/rag/graph/
+opt/rag/hpo_rag.db
+opt/rag/scripts/rag.code-workspace
+opt/rag/*.docx
+opt/rag/data/*.docx
+opt/rag/data/*.pkl
+opt/rag/data/cache/
+opt/rag/data/runs/
+opt/rag/data/*.jsonl
+
 *.jsonl
 
 csv/
 hpo_rag.db
-data/*
-!data/
-!data/golden-set.txt
-!data/golden_set.jsonl
-!data/golden_set_ru_from_en.jsonl
-!data/popatkus_points_5_base.jsonl
-!data/popatkus_points_5_small.jsonl
-!data/popatkus_points_5_large.jsonl
-!data/popatkus_en_ready.docx
-!data/popatkus_ru_ready.docx
-!data/popatkus_all_v5.jsonl
+opt/rag/data/*
+!opt/rag/data/
+!opt/rag/data/golden-set.txt
+!opt/rag/data/golden_set.jsonl
+!opt/rag/data/golden_set_ru_from_en.jsonl
+!opt/rag/data/popatkus_points_5_base.jsonl
+!opt/rag/data/popatkus_points_5_small.jsonl
+!opt/rag/data/popatkus_points_5_large.jsonl
+!opt/rag/data/popatkus_en_ready.docx
+!opt/rag/data/popatkus_ru_ready.docx
+!opt/rag/data/popatkus_all_v5.jsonl
 
 # pixi
 #   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
