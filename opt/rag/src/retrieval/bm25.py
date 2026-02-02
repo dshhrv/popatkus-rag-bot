@@ -3,6 +3,9 @@ import re
 import pickle
 from razdel import tokenize
 from rank_bm25 import BM25Okapi
+from pymorphy3 import MorphAnalyzer
+
+
 
 N_GRAM_SIZE = 2
 CLAUSE_RE = re.compile(r"^\s*(?P<id>\d+(?:\.\d+)*)\s*[\.\)]\s*(?P<body>.+\S)\s*$")
@@ -11,17 +14,27 @@ WORD_RE = re.compile(r"^[0-9A-Za-zА-Яа-яЁё]+(?:[.\-/][0-9A-Za-zА-Яа-я�
 
 IN_PATH = "/opt/rag/data/popatkus_all_v5.jsonl"
 INDEX_PATH = "/opt/rag/data/bm25index.pkl"
+morph = MorphAnalyzer()
 
-
-def tok(text):
+def tok(text, lang):
     text = text.lower()
     m = CLAUSE_RE.match(text)
     if m:
         text = m.group("body")
     toks = [t.text for t in tokenize(text)]
     toks = [x for x in toks if WORD_RE.fullmatch(x)]
+    if lang == "ru":
+        toks = lemma(toks)
     return toks
 
+def lemma(tokens):
+    out = []
+    for t in tokens:
+        if any(ch.isdigit() for ch in t):
+            out.append(t)
+            continue
+        out.append(morph.parse(t)[0].normal_form)
+    return out
 
 def add_ngrams(tokens, n=N_GRAM_SIZE):
     out = list(tokens)
@@ -46,7 +59,7 @@ def load_corpus_by_lang(in_path=IN_PATH, ngram_n=N_GRAM_SIZE):
             lang = obj.get("lang")
             text = obj.get("text")
             cid = obj.get("id")
-            terms = add_ngrams(tok(text), n=ngram_n)
+            terms = add_ngrams(tok(text, lang), n=ngram_n)
             ids[lang].append(cid)
             corpus[lang].append(terms)
     return ids, corpus
@@ -66,7 +79,7 @@ def bm25_search(bm25, ids, query_text, lang="ru", top_k=30, ngram_n=N_GRAM_SIZE)
     if model is None:
         return []
     doc_ids = ids.get(lang, [])
-    q_terms = add_ngrams(tok(query_text), n=ngram_n)
+    q_terms = add_ngrams(tok(query_text, lang), n=ngram_n)
     scores = model.get_scores(q_terms)
     top_idx = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
     return [doc_ids[i] for i in top_idx]

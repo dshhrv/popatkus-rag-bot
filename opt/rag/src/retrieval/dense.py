@@ -4,11 +4,13 @@ from qdrant_client.models import Filter, FieldCondition, MatchValue
 import json
 from src.embedder import embed_query
 import pickle
+from time import perf_counter
+
 
 URL = "http://localhost:6333"
-COLLECTION_NAME = "popatkus-large"
-GOLDEN_SET_PATH = "/opt/rag/data/golden_set.jsonl"
-MODEL_NAME = "intfloat/multilingual-e5-large"
+COLLECTION_NAME = "popatkus-base"
+# GOLDEN_SET_PATH = "/opt/rag/data/golden_set.jsonl"
+MODEL_NAME = "intfloat/multilingual-e5-base"
 client = QdrantClient(URL)
 model = SentenceTransformer(MODEL_NAME)
 
@@ -20,40 +22,49 @@ def make_lang_filter(lang):
     
 def search_one(text, lang, coll_name, limit=30):
     flt = make_lang_filter(lang)
+
     vec = embed_query(model, text)
+    
     hits = client.search(
         collection_name=coll_name,
         query_vector=vec,
         query_filter=flt,
         limit=limit,
     )
+    
     for h in hits:
         print(h.id, h.score, h.payload.get("text"))
+        
 
 
-def run_golden_set(coll_name, limit=30, n_questions=5):
-    with open(GOLDEN_SET_PATH, "r", encoding="utf-8") as f:
-        i = 0
-        for line in f:
-            obj = json.loads(line)
-            lang = obj.get("lang")
-            text = obj.get("text")
-            print("\nQ:", text, "| lang:", lang)
-            search_one(text=text, lang=lang, coll_name=coll_name, limit=limit)
+# def run_golden_set(coll_name, limit=30, n_questions=5):
+#     with open(GOLDEN_SET_PATH, "r", encoding="utf-8") as f:
+#         i = 0
+#         for line in f:
+#             obj = json.loads(line)
+#             lang = obj.get("lang")
+#             text = obj.get("text")
+#             print("\nQ:", text, "| lang:", lang)
+#             search_one(text=text, lang=lang, coll_name=coll_name, limit=limit)
 
-            i += 1
-            if i >= n_questions:
-                break
+#             i += 1
+#             if i >= n_questions:
+#                 break
 
-def dense_search(coll_name, lang, text, limit=100):
+def dense_search(coll_name, lang, text, limit=100, debug=False):
     flt = make_lang_filter(lang)
+    t0 = perf_counter()
     vec = embed_query(model, text)
+    t1 = perf_counter()
     hits = client.search(
         collection_name=coll_name,
         query_vector=vec,
         query_filter=flt,
         limit=limit,
     )
+    t2 = perf_counter()
+    if debug:
+        print("encode_ms", (t1 - t0) * 1000, "search_ms", (t2 - t1) * 1000, "n_hits", len(hits))
     return [h.id for h in hits]
         
 

@@ -2,7 +2,7 @@ import json
 from sentence_transformers import SentenceTransformer
 
 IN_PATH = "popatkus_all_v5.jsonl"
-OUT_PATH = "popatkus_points_5_small.jsonl"
+OUT_PATH = "popatkus_points_5.jsonl"
 
 MODEL_NAME = "intfloat/multilingual-e5-small"
 BATCH_SIZE = 8
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=["passage", "query"])
-    parser.add_argument("--text", help="текст запроса для mode=query (если нет --text, эмбеддим файл)")
+    parser.add_argument("--text")
     parser.add_argument("--in", dest="in_path", default=IN_PATH)
     parser.add_argument("--out", dest="out_path", default=OUT_PATH)
     parser.add_argument("--batch", type=int, default=BATCH_SIZE)

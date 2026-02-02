@@ -5,7 +5,7 @@ from src.retrieval.glossary import detect_terms, get_definitions
 from scripts.translate import en2ru
 
 
-ONLY_ENGLISH = False
+ONLY_ENGLISH = True
 
 def retrieve_top30(query, lang, bm25, ids, meta, top_each=100, top_final=30, only_english=ONLY_ENGLISH):
     if only_english==True:
