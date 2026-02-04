@@ -18,8 +18,8 @@ from src.retrieval.glossary import detect_terms, get_definitions
 from scripts.translate import en2ru
 from src.retrieval.retrieve import retrieve_top
 
-REFUSAL_RU = "в документе нет прямого подтверждения"
-REFUSAL_EN = "no direct confirmation"
+REFUSAL_RU = "В документе нет прямого подтверждения"
+REFUSAL_EN = "No direct confirmation"
 
 from dotenv import load_dotenv
 load_dotenv()
