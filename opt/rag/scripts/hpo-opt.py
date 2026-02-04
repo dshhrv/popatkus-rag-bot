@@ -32,7 +32,7 @@ W_DENSE = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 2.5]
 W_BM25  = [0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 1.5, 2.0]
 
 OPTIMIZE_METRIC = "both"
-OPTIMIZE_K = 10
+OPTIMIZE_K = 5
 HIT_MIN = 0.95
 MODE = "maximin"
 
@@ -221,7 +221,7 @@ def main():
         sampler=optuna.samplers.TPESampler(seed=42),
         pruner=optuna.pruners.MedianPruner(n_startup_trials=10),
         storage="sqlite:///hpo_rag.db",
-        study_name="hpo_rag_th2htht",
+        study_name="hpo_rag_ttht",
         load_if_exists=True,
     )
     study.optimize(lambda t: objective(t, cache), n_trials=args.trials)

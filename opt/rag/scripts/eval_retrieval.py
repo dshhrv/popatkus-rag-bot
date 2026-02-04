@@ -18,6 +18,7 @@ from scripts.translate import en2ru, MODEL_NAME_TRANSLATE
 from time import perf_counter
 from src.retrieval.dense import dense_search, COLLECTION_NAME, MODEL_NAME
 from src.retrieval.bm25 import bm25_search, load_index, INDEX_PATH, N_GRAM_SIZE
+from src.retrieval.encoder import rerank_one, MODEL_RERANK, load_chunks_map
 
 
 
@@ -58,7 +59,7 @@ def plot(agg, out_png, metric, title):
 
 
 def run_retrieval(mode, golden_path, runs_path, bm25, ids, meta, top_dense, top_bm25,
-                  top_final, weights, k0, mt_tok, mt_model, translate_en=True, debug_translate=False):
+                  top_final, weights, k0, mt_tok, mt_model, batch_size, reranker, chunks_map, translate_en=True, debug_translate=False):
     runs_path = Path(runs_path)
     runs_path.parent.mkdir(parents=True, exist_ok=True)
     times_ms = []
@@ -93,6 +94,21 @@ def run_retrieval(mode, golden_path, runs_path, bm25, ids, meta, top_dense, top_
                     key=lambda r: r,
                     top=top_final,
                 )
+            elif mode == "encoder":
+                ngram_n = meta.get("ngram_n", N_GRAM_SIZE)
+                bm25_ranked = bm25_search(bm25=bm25, ids=ids, query_text=text, lang=lang, top_k=top_bm25, ngram_n=ngram_n)
+                dense_ranked = dense_search(coll_name=COLLECTION_NAME, lang=lang, text=text, limit=top_dense, debug=False)
+                rrf_fused = rrf_fuse(
+                    ranked_lists={"dense": dense_ranked, "bm25": bm25_ranked},
+                    weights=weights,
+                    k=k0,
+                    key=lambda r: r,
+                    top=top_final,
+                )
+                ranked = rerank_one(
+                    reranker = reranker, query=text, final_ids=rrf_fused, chunks_map=chunks_map, batch_size=batch_size
+                )
+                
             dump_line(fout, {"id": qid, "retrieved": ranked})
             t1 = perf_counter()
             times_ms.append((t1 - t0) * 1000)
@@ -145,21 +161,22 @@ def has_en_queries(golden_path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--golden", default="data/golden_set.jsonl")
-    parser.add_argument("--mode", choices=["dense", "bm25", "rrf"], required=True)
-    parser.add_argument("--top-dense", type=int, default=100)
-    parser.add_argument("--top-bm25", type=int, default=100)
-    parser.add_argument("--top-final", type=int, default=30)
-    parser.add_argument("--rrf-k0", type=int, default=60)
-    parser.add_argument("--dense-w", type=float, default=1.0)
-    parser.add_argument("--bm25-w", type=float, default=1.0)
+    parser.add_argument("--mode", choices=["dense", "bm25", "rrf", "encoder"], required=True)
+    parser.add_argument("--top-dense", type=int, default=80)
+    parser.add_argument("--top-bm25", type=int, default=10)
+    parser.add_argument("--top-final", type=int, default=10)
+    parser.add_argument("--rrf-k0", type=int, default=15)
+    parser.add_argument("--dense-w", type=float, default=2.5)
+    parser.add_argument("--bm25-w", type=float, default=0.3)
     parser.add_argument("--ks", default="1,3,5,10,15")
-
+    parser.add_argument("--batch_size", type=int, default=512)
+    
     parser.add_argument("--runs", default=None)
     parser.add_argument("--out-csv", default=None)
     parser.add_argument("--out-dir", default=None)
     parser.add_argument("--only-english", action="store_true")
 
-    
+    POPATKUS  = "/server1/popatkus-rag-bot/opt/rag/data/popatkus_all_v5.jsonl"
     
     
     args = parser.parse_args()
@@ -180,6 +197,13 @@ def main():
         mt_model.eval()
 
     
+    reranker = None
+    chunks_map = None
+    if args.mode == "encoder":
+        chunks_map = load_chunks_map(POPATKUS)
+        from sentence_transformers import CrossEncoder
+        reranker = CrossEncoder(MODEL_RERANK, trust_remote_code=True, max_length=512)
+    
     bm25, ids, meta = load_index(INDEX_PATH)
     weights = {"dense": args.dense_w, "bm25": args.bm25_w}
     ks = [int(x) for x in args.ks.split(",")]
@@ -192,14 +216,17 @@ def main():
         ids=ids,
         meta=meta,
         top_dense=args.top_dense,
-        top_bm25 = args.top_bm25,
+        top_bm25=args.top_bm25,
         top_final=args.top_final,
         weights=weights,
         k0=args.rrf_k0,
         mt_tok=mt_tok,
         mt_model=mt_model,
+        batch_size=args.batch_size,
+        reranker=reranker,
+        chunks_map=chunks_map,
         translate_en=translate_en,
-        debug_translate=False
+        debug_translate=False,
     )
     total_ms = (perf_counter() - t0) * 1000
     print(f"TOTAL_TIME_S({args.mode}): {total_ms:.3f}")
