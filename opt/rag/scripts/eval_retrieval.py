@@ -19,6 +19,7 @@ from time import perf_counter
 from src.retrieval.dense import dense_search, COLLECTION_NAME, MODEL_NAME
 from src.retrieval.bm25 import bm25_search, load_index, INDEX_PATH, N_GRAM_SIZE
 from src.retrieval.encoder import rerank_one, MODEL_RERANK, load_chunks_map
+from src.retrieval.cc import cc_fuse
 
 
 
@@ -59,7 +60,7 @@ def plot(agg, out_png, metric, title):
 
 
 def run_retrieval(mode, golden_path, runs_path, bm25, ids, meta, top_dense, top_bm25,
-                  top_final, weights, k0, mt_tok, mt_model, batch_size, reranker, chunks_map, translate_en=True, debug_translate=False):
+                  top_final, weights, k0, alpha, mt_tok, mt_model, batch_size, reranker, chunks_map, translate_en=True, debug_translate=False):
     runs_path = Path(runs_path)
     runs_path.parent.mkdir(parents=True, exist_ok=True)
     times_ms = []
@@ -92,6 +93,16 @@ def run_retrieval(mode, golden_path, runs_path, bm25, ids, meta, top_dense, top_
                     weights=weights,
                     k=k0,
                     key=lambda r: r,
+                    top=top_final,
+                )
+            elif mode == "cc":
+                ngram_n = meta.get("ngram_n", N_GRAM_SIZE)
+                bm25_ranked = bm25_search(bm25=bm25, ids=ids, query_text=text, lang=lang, top_k=top_bm25, ngram_n=ngram_n)
+                dense_ranked = dense_search(coll_name=COLLECTION_NAME, lang=lang, text=text, limit=top_dense, debug=False)
+                weights = {"dense": alpha, "bm25": 1.0 - alpha}
+                ranked = cc_fuse(
+                    ranked_lists={"dense": dense_ranked, "bm25": bm25_ranked},
+                    weights=weights,
                     top=top_final,
                 )
             elif mode == "encoder":
@@ -127,7 +138,12 @@ def eval_metrics(golden_path, runs_path, ks):
         for line in f:
             obj = json.loads(line)
             qid = obj["id"]
-            ranked = obj["retrieved"]
+            ranked_raw = obj["retrieved"]
+            if ranked_raw and isinstance(ranked_raw[0], dict):
+                ranked = [str(x["id"]) for x in ranked_raw]
+            else:
+                ranked = [str(x) for x in ranked_raw]
+
             rel = rel_by_id.get(qid, set())
             for k in ks:
                 topk = ranked[:k]
@@ -161,13 +177,14 @@ def has_en_queries(golden_path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--golden", default="data/golden_set.jsonl")
-    parser.add_argument("--mode", choices=["dense", "bm25", "rrf", "encoder"], required=True)
+    parser.add_argument("--mode", choices=["dense", "bm25", "rrf", "encoder", "cc"], required=True)
     parser.add_argument("--top-dense", type=int, default=80)
     parser.add_argument("--top-bm25", type=int, default=10)
     parser.add_argument("--top-final", type=int, default=10)
     parser.add_argument("--rrf-k0", type=int, default=15)
     parser.add_argument("--dense-w", type=float, default=2.5)
     parser.add_argument("--bm25-w", type=float, default=0.3)
+    parser.add_argument("--alpha", type=float, default=1.0)
     parser.add_argument("--ks", default="1,3,5,10,15")
     parser.add_argument("--batch_size", type=int, default=512)
     
@@ -220,6 +237,7 @@ def main():
         top_final=args.top_final,
         weights=weights,
         k0=args.rrf_k0,
+        alpha = args.alpha,
         mt_tok=mt_tok,
         mt_model=mt_model,
         batch_size=args.batch_size,

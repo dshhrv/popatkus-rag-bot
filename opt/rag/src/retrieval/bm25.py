@@ -80,7 +80,9 @@ def bm25_search(bm25, ids, query_text, lang="ru", top_k=30, ngram_n=N_GRAM_SIZE)
     q_terms = add_ngrams(tok(query_text, lang), n=ngram_n)
     scores = model.get_scores(q_terms)
     top_idx = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
-    return [doc_ids[i] for i in top_idx]
+    # return [doc_ids[i] for i in top_idx]
+    return [{"id": doc_ids[i], "score": float(scores[i])} for i in top_idx]
+
 
 
 def save_index(path, bm25, ids, meta: dict):

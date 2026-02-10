@@ -8,6 +8,8 @@ sys.path.insert(0, str(ROOT))
 import math
 from src.retrieval.dense import dense_search, COLLECTION_NAME, MODEL_NAME
 from src.retrieval.bm25 import bm25_search, load_index, INDEX_PATH, N_GRAM_SIZE
+from src.retrieval.rrf import rrf_fuse
+from src.retrieval.cc import cc_fuse
 from transformers import MarianTokenizer, MarianMTModel
 from scripts.translate import en2ru, MODEL_NAME_TRANSLATE
 
@@ -20,8 +22,8 @@ bm25, ids, meta = load_index(INDEX_PATH)
 MAX_DENSE = 100
 MAX_BM25 = 100
 
-IN_PATH = "data/golden_set_ru_from_en.jsonl"
-OUT_PATH = "/opt/rag/data/cache/cache.jsonl"
+IN_PATH = "data/golden_set.jsonl"
+OUT_PATH = str(ROOT / "data" / "cache" / "cache.jsonl")
 
 TOP_DENSE_CHOICES = [10, 20, 30, 50, 80, 100]
 TOP_BM25_CHOICES  = [10, 20, 30, 50, 80, 100]
@@ -32,7 +34,7 @@ W_DENSE = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 2.5]
 W_BM25  = [0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 1.5, 2.0]
 
 OPTIMIZE_METRIC = "both"
-OPTIMIZE_K = 5
+OPTIMIZE_K = 10
 HIT_MIN = 0.95
 MODE = "maximin"
 
@@ -66,20 +68,6 @@ def recall_at_k(ranked, rel_set, k):
 
 def dump_line(f, obj):
     f.write(json.dumps(obj, ensure_ascii=False) + "\n")
-    
-    
-def rrf_fuse(ranked_lists, weights, k=60, key=lambda x: x["id"], top=30):
-    scores = {}
-    best = {}
-    for name, items in ranked_lists.items():
-        w = weights.get(name, 1.0)
-        for rank, it in enumerate(items, start=1):
-            doc_id = key(it)
-            scores[doc_id] = scores.get(doc_id, 0.0) + w / (k + rank)
-            if doc_id not in best:
-                best[doc_id] = it
-    fused = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
-    return [best[doc_id] for doc_id, _ in fused[:top]]
     
 
 def load_golden():
@@ -122,8 +110,9 @@ def load_cache(path):
     return data
         
         
-def score(cache, top_dense, top_bm25, top_final, rrf_k, w_dense, w_bm25, k_metric):
-    weights = {"dense": w_dense, "bm25": w_bm25}
+def score(cache, top_dense, top_bm25, top_final, alpha, k_metric):
+    # weights = {"dense": w_dense, "bm25": w_bm25}
+    weights = {"dense": alpha, "bm25": 1.0 - alpha}
     mrr_sum = 0.0
     ndcg_sum = 0.0
     recall_sum = 0.0
@@ -131,14 +120,21 @@ def score(cache, top_dense, top_bm25, top_final, rrf_k, w_dense, w_bm25, k_metri
     n = 0
     for ex in cache:
         rel_set = set(ex["rel"])
-        dense = [{"id": x} for x in ex["dense"][:top_dense]]
-        bm25l = [{"id": x} for x in ex["bm25"][:top_bm25]]
+        # dense = [{"id": x} for x in ex["dense"][:top_dense]]
+        # bm25l = [{"id": x} for x in ex["bm25"][:top_bm25]]
+        dense_items = ex["dense"][:top_dense]
+        bm25_items = ex["bm25"][:top_bm25]
         fused = rrf_fuse(
             ranked_lists={"dense": dense, "bm25": bm25l},
             weights=weights,
             k=rrf_k,
             top=top_final,
         )
+        # fused = cc_fuse(
+        #     ranked_lists={"dense": dense_items, "bm25": bm25_items},
+        #     weights=weights,
+        #     top=top_final,
+        # )
         ranked = [x["id"] for x in fused]
         mrr_sum += mrr_at_k(ranked, rel_set, k_metric)
         ndcg_sum += ndcg_at_k(ranked, rel_set, k_metric)
@@ -156,18 +152,17 @@ def objective(trial, cache):
     top_dense = trial.suggest_categorical("top_dense", TOP_DENSE_CHOICES)
     top_bm25  = trial.suggest_categorical("top_bm25", TOP_BM25_CHOICES)
     top_final = trial.suggest_categorical("top_final", TOP_FINAL_CHOICES)
-    rrf_k = trial.suggest_categorical("rrf_k", RRF_K_CHOICES)
-    w_dense = trial.suggest_categorical("w_dense", W_DENSE)
-    w_bm25  = trial.suggest_categorical("w_bm25", W_BM25)
+    # rrf_k = trial.suggest_categorical("rrf_k", RRF_K_CHOICES)
+    # w_dense = trial.suggest_categorical("w_dense", W_DENSE)
+    # w_bm25  = trial.suggest_categorical("w_bm25", W_BM25)
+    alpha = trial.suggest_float("alpha", 0.0, 1.0, step=0.01)
 
     mrr_mean, ndcg_mean, recall_mean, hit_mean = score(
         cache=cache,
         top_dense=top_dense,
         top_bm25=top_bm25,
         top_final=top_final,
-        rrf_k=rrf_k,
-        w_dense=w_dense,
-        w_bm25=w_bm25,
+        alpha=alpha,
         k_metric=OPTIMIZE_K,
     )
 
@@ -175,14 +170,6 @@ def objective(trial, cache):
     trial.set_user_attr(f"ndcg@{OPTIMIZE_K}", ndcg_mean)
     trial.set_user_attr(f"recall@{OPTIMIZE_K}", recall_mean)
     trial.set_user_attr(f"hit@{OPTIMIZE_K}", hit_mean)
-    # if OPTIMIZE_METRIC=="recall":
-    #     return recall_mean
-    # elif OPTIMIZE_METRIC=="ndcg":
-    #     return ndcg_mean
-    # elif OPTIMIZE_METRIC=="mrr":
-    #     return mrr_mean
-    # elif OPTIMIZE_METRIC=="hit":
-    #     return hit_mean
     if OPTIMIZE_METRIC=="both":
         return hit_mean, recall_mean
 
@@ -221,7 +208,7 @@ def main():
         sampler=optuna.samplers.TPESampler(seed=42),
         pruner=optuna.pruners.MedianPruner(n_startup_trials=10),
         storage="sqlite:///hpo_rag.db",
-        study_name="hpo_rag_ttht",
+        study_name="hpo_rarht",
         load_if_exists=True,
     )
     study.optimize(lambda t: objective(t, cache), n_trials=args.trials)

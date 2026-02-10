@@ -65,7 +65,8 @@ def dense_search(coll_name, lang, text, limit=100, debug=False):
     t2 = perf_counter()
     if debug:
         print("encode_ms", (t1 - t0) * 1000, "search_ms", (t2 - t1) * 1000, "n_hits", len(hits))
-    return [h.id for h in hits]
+    # return [h.id for h in hits]
+    return [{"id": h.id, "score": float(h.score)} for h in hits]
         
 
 
