@@ -25,12 +25,14 @@ def load_chunks_map(jsonl_path):
 
 
 def rerank_one(reranker, query, final_ids, chunks_map, batch_size):
-    cand_texts = [chunks_map.get(i, "") for i in final_ids]
+    candidate_ids = [x["id"] if isinstance(x, dict) else x for x in final_ids]
+    cand_texts = [chunks_map.get(i, "") for i in candidate_ids]
     pairs = [(query, t) for t in cand_texts]
     scores = reranker.predict(pairs, batch_size=batch_size, convert_to_numpy=False)
     scores = [float(s) for s in scores]
-    reranked = [cid for _, cid in sorted(zip(scores, final_ids), key=lambda x: x[0], reverse=True)]
-    return reranked
+    items = [{"id": cid, "ce_score": s} for cid, s in zip(candidate_ids, scores)]
+    items.sort(key=lambda x: x["ce_score"], reverse=True)
+    return items
 
 
 
